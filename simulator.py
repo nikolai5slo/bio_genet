@@ -12,9 +12,9 @@ delta = 1
 dt = 0.01
 
 # Map of activators and repressors
-gmap = np.array([[0,Kd,0],
-		  [0,0,Kd],
-	  	  [Kd,0,0]])
+gmap = np.array([[0,-Kd,0],
+		  [0,0,-Kd],
+	  	  [-Kd,0,0]])
 
 # Alphas and deltas
 alphas = np.array([alpha,alpha,alpha])
@@ -26,7 +26,7 @@ def generate_model(mat, alphas, deltas):
 
     # Prepare matrixes for computation
     def repr_model(p, t):
-        return alphas * np.prod(np.where(mat != 0, (0 <= (mat - p)).astype(int), 1), axis=1) - (deltas * p)
+        return alphas * np.prod(np.where(mat != 0, (0 <= np.sign(mat)*(mat + p)).astype(int), 1), axis=1) - (deltas * p)
     return repr_model
 
 ''' Reprissilator model '''
