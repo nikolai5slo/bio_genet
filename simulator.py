@@ -5,49 +5,53 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 
-alpha = 100
-Kd = 1
-delta = 1
+PROTEIN_NUM = 3
+T_MAX = 100
 
+alpha = 100
+delta = 1
+Kd = 1
+Km = 2
 dt = 0.01
 
 # Map of activators and repressors
-gmap = np.array([[0,-Kd,0],
-		  [0,0,-Kd],
-	  	  [-Kd,0,0]])
+#gmap = np.array([[0,-Kd,0],
+#                 [0,0,-Kd],
+#	  	          [-Kd,0,0]])
 
-# Alphas and deltas
-alphas = np.array([alpha,alpha,alpha])
-deltas = np.array([delta,delta,delta])
+#initiatie semi-random map of activators
+gmap = np.zeros((PROTEIN_NUM, PROTEIN_NUM))
+idx = np.random.randint(1, PROTEIN_NUM, size=1)[0]
+for i in range(gmap.shape[0]):
+    gmap[idx,i] = -Kd
+    idx += 1
+    if idx >= PROTEIN_NUM:
+        idx = 0
+
+print(gmap)
 
 ''' Universal model generator '''
-def generate_model(mat, alphas, deltas):
-    mat=np.transpose(mat)
+def repressilator_model(p, t, M, degradation='linear'):
+    dp = alpha * np.prod(np.where(M != 0, (0 <= np.sign(M)*(M + p)).astype(int), 1), axis=1)
 
-    # Prepare matrixes for computation
-    def repr_model(p, t):
-        return alphas * np.prod(np.where(mat != 0, (0 <= np.sign(mat)*(mat + p)).astype(int), 1), axis=1) - (deltas * p)
-    return repr_model
+    if degradation == 'linear':
+        dp = dp - delta * p
+    elif degradation == 'enzyme':
+        dp = dp - delta * (p / (p + Km))
 
-''' Reprissilator model '''
-def repressilator_model(P, t):
-    P1=[0,0,0]
-    P1[0] = alpha*int(0 <= (Kd - P[2])) - delta * P[0]
-    P1[1] = alpha*int(0 <= (Kd - P[0])) - delta * P[1]
-    P1[2] = alpha*int(0 <= (Kd - P[1])) - delta * P[2]
-    return P1
-
+    return dp
 
 #r = integrate.odeint(repressilator_model, [100, 0, 0], t)
 
 # Generate timestamps
-t = np.arange(0, 100, dt)
+t = np.arange(0, T_MAX, dt)
 
 # Dp ODE integration
 tim = time.clock()
-r = integrate.odeint(generate_model(gmap,alphas,deltas), np.array([100, 0, 0]), t)
+r, info = integrate.odeint(repressilator_model, np.random.randint(0, 10, size=PROTEIN_NUM), t, args=(gmap,'linear'), full_output=True, printmessg=True)
 print(time.clock()-tim)
+#print(info)
 
 print(r)
-plt.plot(t,r[:,0])
+plt.plot(t, r)
 plt.show()
