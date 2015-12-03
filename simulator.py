@@ -50,4 +50,6 @@ print(time.clock()-tim)
 
 print(r)
 plt.plot(t,r[:,0])
+plt.xlabel('Time')
+plt.ylabel('Protein concetration')
 plt.show()
