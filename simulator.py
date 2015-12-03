@@ -49,7 +49,7 @@ r = integrate.odeint(generate_model(gmap,alphas,deltas), np.array([100, 0, 0]), 
 print(time.clock()-tim)
 
 print(r)
-plt.plot(t,r[:,0])
+plt.plot(t,r)
 plt.xlabel('Time')
 plt.ylabel('Protein concetration')
 plt.show()
