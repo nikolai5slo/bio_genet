@@ -4,55 +4,62 @@ from scipy import integrate
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-
-
 from scipy import pi
 import scipy.fftpack
 
+PROTEIN_NUM_MAX = 5
+KD_MAX = 100
+PROTEINS_MAX = 3
+ALPHA_MAX = 100
 
-PROTEIN_NUM = 3
+POPULATION_SIZE = 20
 T_MAX = 20
-
-alpha = 100
-delta = 1
-Kd = 1
-Km = 2
 dt = 0.1
 
-# Map of activators and repressors
-#gmap = np.array([[0,-Kd,0],
-#                 [0,0,-Kd],
-#	  	          [-Kd,0,0]])
+def initiate_subject(num_proteins=5,alphas_type='scalar',deltas_type='scalar'):
+    if (num_proteins == None):
+        num_proteins = np.random.randint(1, PROTEIN_NUM_MAX+1)
 
-#initiatie semi-random map of activators
-gmap = np.zeros((PROTEIN_NUM, PROTEIN_NUM))
-idx = np.random.randint(1, PROTEIN_NUM, size=1)[0]
-for i in range(gmap.shape[0]):
-    gmap[idx,i] = -Kd
-    idx += 1
-    if idx >= PROTEIN_NUM:
-        idx = 0
+    gmap = np.zeros((num_proteins, num_proteins))
+    idx = np.random.randint(1, num_proteins)
+
+    Kd = np.random.random_sample() * KD_MAX
+    for i in range(gmap.shape[0]):
+        gmap[idx,i] = -Kd
+        idx += 1
+        if idx >= num_proteins:
+            idx = 0
+
+    return {
+        'Kd': Kd,
+        'proteins': num_proteins,
+        'alphas': np.random.random_sample() * ALPHA_MAX if (alphas_type == 'scalar') else np.random.random_sample(size=num_proteins) * ALPHA_MAX,
+        'deltas': np.random.random_sample() if (deltas_type == 'scalar') else np.random.random_sample(size=num_proteins),
+        'degradation': 'linear',
+        'Km': None,
+        'M': gmap
+    }
 
 ''' Universal model generator '''
-def repressilator_model(p, t, M, degradation='linear'):
-    dp = alpha * np.prod(np.where(M != 0, (0 <= np.sign(M)*(M + p)).astype(int), 1), axis=1)
+def repressilator_model(p, t, model):
+    dp = model['alphas'] * np.prod(np.where(model['M'] != 0, (0 <= np.sign(model['M'])*(model['M'] + p)).astype(int), 1), axis=1)
 
-    if degradation == 'linear':
-        dp = dp - delta * p
-    elif degradation == 'enzyme':
-        dp = dp - delta * (p / (p + Km))
+    if model['degradation'] == 'linear':
+        dp = dp - model['deltas'] * p
+    elif model['degradation'] == 'enzyme':
+        dp = dp - model['deltas'] * (p / (p + model['Km']))
 
     return dp
 
-
-# r = integrate.odeint(repressilator_model, [100, 0, 0], t)
 
 # Generate timestamps
 t = np.arange(0, 100, dt)
 
 # Dp ODE integration
 tim = time.clock()
-r, info = integrate.odeint(repressilator_model, np.random.randint(0, 10, size=PROTEIN_NUM), t, args=(gmap,'linear'), full_output=True, printmessg=True)
+sub = initiate_subject()
+print(sub)
+r, info = integrate.odeint(repressilator_model, np.random.randint(0, 10, size=sub['proteins']), t, args=(sub,), full_output=True, printmessg=True)
 print(time.clock() - tim)
 
 print(r)
@@ -76,7 +83,6 @@ N = len(xF)
 xF = xF[0:N/2]
 fr = np.linspace(0,100/2,N/2)
 """
-
 
 def sigFFT(signal):
     FFT = abs(scipy.fft(signal))
