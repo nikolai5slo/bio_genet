@@ -30,24 +30,32 @@ def initiate_subject(num_proteins=5,alphas_type='scalar',deltas_type='scalar'):
         if idx >= num_proteins:
             idx = 0
 
+    ad = -np.random.rand(num_proteins, num_proteins)
+    np.fill_diagonal(ad, 0)
+
     return {
         'Kd': Kd,
         'proteins': num_proteins,
-        'alphas': np.random.random_sample() * ALPHA_MAX if (alphas_type == 'scalar') else np.random.random_sample(size=num_proteins) * ALPHA_MAX,
-        'deltas': np.random.random_sample() if (deltas_type == 'scalar') else np.random.random_sample(size=num_proteins),
+        'alphas': np.random.random_sample(size=num_proteins) * ALPHA_MAX,
         'degradation': 'linear',
         'Km': None,
-        'M': gmap
+        #'M': gmap,
+        'M': np.zeros((num_proteins,num_proteins)),
+
+        # Degradation
+        'deltas': np.random.rand(num_proteins),
+        'AD' : ad, # Matrika delt, za aktinvo degradacijo. Po diagonali so 0 ker ne more vplivati sam nase
+        'ED' : np.random.rand(2,num_proteins) # Vektorja, za encimsko degradacijo. Prvi stolpec je delta, drugi Km
     }
 
 ''' Universal model generator '''
 def repressilator_model(p, t, model):
-    dp = model['alphas'] * np.prod(np.where(model['M'] != 0, (0 <= np.sign(model['M'])*(model['M'] + p)).astype(int), 1), axis=1)
+    dp = model['alphas'] * np.prod(np.where(model['M'] != 0, (0 <= np.where(model['M'] > 0, p - model['M'], -model['M'] - p )).astype(int), 1), axis=1)
 
-    if model['degradation'] == 'linear':
-        dp = dp - model['deltas'] * p
-    elif model['degradation'] == 'enzyme':
-        dp = dp - model['deltas'] * (p / (p + model['Km']))
+    # Degradacija 
+    dp = np.dot(model['AD'], dp) * dp # Aktivna degradacija
+    dp = -model['deltas'] * dp # Linearna degradacija
+    dp = -model['ED'][0,:] * (dp / (model['ED'][1,:] + dp)) # Encimska degradacija
 
     return dp
 
@@ -83,6 +91,7 @@ N = len(xF)
 xF = xF[0:N/2]
 fr = np.linspace(0,100/2,N/2)
 """
+exit(0)
 
 def sigFFT(signal):
     FFT = abs(scipy.fft(signal))
