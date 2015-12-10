@@ -37,27 +37,45 @@ def initiate_subject(num_proteins=5,alphas_type='scalar',deltas_type='scalar'):
         'Kd': Kd,
         'proteins': num_proteins,
         'alphas': np.random.random_sample(size=num_proteins) * ALPHA_MAX,
-        'degradation': 'linear',
         'Km': None,
-        #'M': gmap,
-        'M': np.zeros((num_proteins,num_proteins)),
+        'M': gmap,
+        #'M': np.zeros((num_proteins,num_proteins)),
 
         # Degradation
         'deltas': np.random.rand(num_proteins),
         'AD' : ad, # Matrika delt, za aktinvo degradacijo. Po diagonali so 0 ker ne more vplivati sam nase
-        'ED' : np.random.rand(2,num_proteins) # Vektorja, za encimsko degradacijo. Prvi stolpec je delta, drugi Km
+        'ED' : np.random.rand(2, num_proteins), # Vektorja, za encimsko degradacijo. Prvi stolpec je delta, drugi Km
+        'LM' : np.vstack((np.random.randint(-10, num_proteins, size=(num_proteins)), np.random.rand(num_proteins)))
     }
 
 ''' Universal model generator '''
-def repressilator_model(p, t, model):
-    dp = model['alphas'] * np.prod(np.where(model['M'] != 0, (0 <= np.where(model['M'] > 0, p - model['M'], -model['M'] - p )).astype(int), 1), axis=1)
+def generate_model(model):
 
-    # Degradacija 
-    dp = np.dot(model['AD'], dp) * dp # Aktivna degradacija
-    dp = -model['deltas'] * dp # Linearna degradacija
-    dp = -model['ED'][0,:] * (dp / (model['ED'][1,:] + dp)) # Encimska degradacija
+	lm_vec = model['LM'].T
+	lm_map = model['LM'][0,:] >= 0
+	lm_mat = np.zeros((model['proteins'], model['proteins']))
+	for i, v in enumerate(lm_vec):
+		if(v[0] >= 0):
+			lm_mat[i, i] = -v[1]
+			lm_mat[v[0], i] = v[1]
+			lm_map[v[0]] = 1
 
-    return dp
+
+	def repressilator_model(p, t):
+		# Genska represija
+	    dg = model['alphas'] * np.prod(np.where(model['M'] != 0, (0 <= np.where(model['M'] > 0, p - model['M'], -model['M'] - p )).astype(int), 1), axis=1)
+
+	    # Modifikacija
+	    dm = np.dot(lm_mat, p)
+	    dp = np.where(lm_map >= 0, dm, dg)
+
+	    # Degradacija 
+	    dp = np.dot(model['AD'], dp) * dp # Aktivna degradacija
+	    dp = -model['deltas'] * dp # Linearna degradacija
+	    dp = -model['ED'][0,:] * (dp / (model['ED'][1,:] + dp)) # Encimska degradacija
+
+	    return dp
+	return repressilator_model
 
 
 # Generate timestamps
@@ -67,7 +85,7 @@ t = np.arange(0, 100, dt)
 tim = time.clock()
 sub = initiate_subject()
 print(sub)
-r, info = integrate.odeint(repressilator_model, np.random.randint(0, 10, size=sub['proteins']), t, args=(sub,), full_output=True, printmessg=True)
+r, info = integrate.odeint(generate_model(sub), np.random.randint(0, 10, size=sub['proteins']), t, args=(), full_output=True, printmessg=True)
 print(time.clock() - tim)
 
 print(r)
