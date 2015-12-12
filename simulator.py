@@ -10,7 +10,12 @@ import scipy.fftpack
 PROTEIN_NUM_MAX = 5
 KD_MAX = 100
 PROTEINS_MAX = 3
-ALPHA_MAX = 100
+ALPHA_MAX = 1
+
+DEGRADATION_WEIGHTS = np.array([0.6,0.3,0.1])
+
+PERTURBAIION_PROBABILITY = 0.1
+PERTURBATION_WEIGHT_DEGRADATION = np.array([0.6, 0.2, 0.2])
 
 POPULATION_SIZE = 100
 T_MAX = 20
@@ -49,7 +54,7 @@ def initiate_subject(num_proteins=5,alphas_type='scalar',deltas_type='scalar',de
         'LM' : np.vstack((np.random.randint(-10, num_proteins, size=(num_proteins)), np.random.rand(num_proteins)))
     }
 
-def generate_population(size, num_proteins, degradation_weights=np.array([0.6,0.3,0.1])):
+def generate_population(size, num_proteins):
     subjects = []
 
     #zaenkrat se po utezeh dodaja le degradacija
@@ -58,9 +63,9 @@ def generate_population(size, num_proteins, degradation_weights=np.array([0.6,0.
     for i in range(size):
         degr_pos = np.random.rand()
 
-        if degr_pos < degradation_weights[0]:
+        if degr_pos < DEGRADATION_WEIGHTS[0]:
             degradation_type = 'linear'
-        elif degr_pos < np.sum(degradation_weights[0:2]):
+        elif degr_pos < np.sum(DEGRADATION_WEIGHTS[0:2]):
             degradation_type = 'enzyme'
         else:
             degradation_type = 'active'
@@ -68,6 +73,45 @@ def generate_population(size, num_proteins, degradation_weights=np.array([0.6,0.
         subjects.append(initiate_subject(num_proteins, degradation=degradation_type))
 
     return subjects
+
+def perturbate(population):
+    for subject in population:
+        # doloci ali se ta osebek spreminja
+        if np.random.rand() < PERTURBAIION_PROBABILITY:
+            # TODO: dodati se sistem za nakljucno izbiro metode?
+
+            # spreminjanje kineticnih parametrov
+            par_num = np.random.randint(len(subject['alphas']) + len(subject['deltas']))
+            if par_num < len(subject['alphas']):
+                subject['alphas'][par_num] *= np.random.rand() * 2
+            else:
+                subject['alphas'][par_num - len(subject['alphas'])] *= np.random.rand() * 2
+
+            # dodajanje novega proteina
+            # TODO
+
+            # spreminjanje tipa degradacije
+            degr_pos = np.random.rand()
+
+            if degr_pos < PERTURBATION_WEIGHT_DEGRADATION[0]:
+                subject['degradation'] = 'linear'
+            elif degr_pos < np.sum(PERTURBATION_WEIGHT_DEGRADATION[0:2]):
+                subject['degradation'] = 'enzyme'
+                subject['Km'] = np.random.randint(1, subject['Kd'])
+            else:
+                subject['degradation'] = 'active'
+                # TODO: Tudi verjetno se potrebno spremeniti parametre
+
+            # spreminjanje tipa generiranja protein
+            # TODO
+
+            # spreminjanje tipa genske regulacije
+            # TODO
+
+            # odstranjevanje proteina
+            # TODO
+
+    return population
 
 ''' Universal model generator '''
 def generate_model(model):
