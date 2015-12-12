@@ -51,7 +51,8 @@ def initiate_subject(num_proteins=5,alphas_type='scalar',deltas_type='scalar',de
         'deltas': np.random.rand(num_proteins),
         'AD' : ad, # Matrika delt, za aktinvo degradacijo. Po diagonali so 0 ker ne more vplivati sam nase
         'ED' : np.random.rand(2, num_proteins), # Vektorja, za encimsko degradacijo. Prvi stolpec je delta, drugi Km
-        'LM' : np.vstack((np.random.randint(-10, num_proteins, size=(num_proteins)), np.random.rand(num_proteins)))
+        'LM' : np.vstack((np.random.randint(-10, num_proteins, size=(num_proteins)), np.random.rand(num_proteins))),
+        'EM' : np.vstack((np.random.randint(-10, num_proteins, size=(num_proteins)), np.random.rand(num_proteins),np.random.rand(num_proteins))) #ENCIMSKA MODIFIKACIJA 3 vrstice, 1. na katerega vpliva, 2. beta, 3. Km
     }
 
 def generate_population(size, num_proteins):
@@ -126,13 +127,29 @@ def generate_model(model):
             lm_map[v[0]] = 1
 
 
+    em_vec = model['EM'].T
+    em_map = model['EM'][0,:] >= 0
+    em_mat = np.zeros((model['proteins'], model['proteins']))
+    for i, v in enumerate(em_vec):
+        if(v[0] >= 0):
+            em_mat[i, i] = -v[1]
+            em_mat[v[0], i] = v[1]
+            em_map[v[0]] = 1
+
         def repressilator_model(p, t):
             # Genska represija
             dg = model['alphas'] * np.prod(np.where(model['M'] != 0, (0 <= np.where(model['M'] > 0, p - model['M'], -model['M'] - p )).astype(int), 1), axis=1)
 
             # Modifikacija
             dm = np.dot(lm_mat, p)
-            dp = np.where(lm_map >= 0, dm, dg)
+            dp = np.where(lm_map > 0, dm, dg) # linearna
+
+            #Encimska modifikacija
+            dem_brez = p * (p / (model['EM'][2,:] + p)) # Encimska modifikacija pred mnozejem z beto
+            dem = np.dot(em_mat, dem_brez)
+            dp = np.where(em_map > 0, dem, dg)
+
+
 
             # Degradacija
             if model['degradation'] == 'active':
