@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import time
 from scipy import pi
 import scipy.fftpack
+import analysis
 
 PROTEIN_NUM_MAX = 5
 KD_MAX = 100
@@ -46,7 +47,7 @@ def initiate_subject(num_proteins=5,alphas_type='scalar',deltas_type='scalar',de
         #'Km': np.random.randint(1, Kd),
         'M': gmap,
         #'M': np.zeros((num_proteins,num_proteins)),
-        'type' : np.random.randint(0, 3, size=num_proteins), # 0 - gensko izražanje, 1 - linearna modifikacija, 2 - encimska modifikacija
+        'type' : np.random.randint(0, 3, size=num_proteins),# 0 - gensko izrazanje, 1 - linearna modifikacija, 2 - encimska modifikacija
 
         # Degradation
         'deg_type' : np.random.randint(0, 3, size=num_proteins), # 0 - linearna deg., 1 - aktivna deg., 2 - encimska deg.
@@ -199,50 +200,18 @@ print(sub)
 r, info = integrate.odeint(generate_model(sub), np.random.randint(0, 10, size=sub['proteins']), t, args=(), full_output=True, printmessg=True)
 print(time.clock() - tim)
 
+
 print(r)
 plt.plot(t, r)
 plt.xlabel('Time')
 plt.ylabel('Protein concetration')
 plt.show()
 
-"""
-FFT = abs(scipy.fft(r[:,0]))
-freqs = scipy.fftpack.fftfreq(r[:,0].size, t[1]-t[0])
 
-plt.subplot(211)
-plt.plot(t, r[:,0])
-plt.subplot(212)
-plt.plot(freqs,20*scipy.log10(FFT),'x')
-plt.show()
-"""
-"""xF = np.fft.fft(r[:,0])
-N = len(xF)
-xF = xF[0:N/2]
-fr = np.linspace(0,100/2,N/2)
-"""
+
 
 print(generate_population(10, 3))
 
 exit(0)
 
-def sigFFT(signal):
-    FFT = abs(scipy.fft(signal))
-    freqs = scipy.fftpack.fftfreq(signal.size, t[1]-t[0])
-
-    plt.subplot(211)
-    plt.plot(t, signal)
-    plt.subplot(212)
-    plt.plot(freqs[0:500],FFT[0:500],'x')
-    #plt.plot(freqs,20*scipy.log10(FFT),'x')
-    plt.show()
-
-    threshold = 0.5 * max(FFT[0:500])
-    mask = FFT > threshold
-    peaks = freqs[mask]
-    print(peaks[0])
-
-t = scipy.linspace(0,120,1000)
-acc = lambda t: 10*scipy.sin(2*pi*2.0*t)
-signal = acc(t)
-sigFFT(signal)
 
