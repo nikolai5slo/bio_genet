@@ -35,7 +35,7 @@ def measureOsc(sig, timeStamps, threshold):
     frequency = 0
 
     if len(peaks) >= 2:
-        amplitude = sig[indexes[-2]] - min(sig[indexes[-2]], sig[indexes[-1]])
+        amplitude = sig[indexes[-2]] - min(sig[indexes[-2]:indexes[-1]])
         period = timeStamps[indexes[-1]] - timeStamps[indexes[-2]]
         if timeStamps[indexes[-1]] < timeStamps[-1] - 1.5 * period:
             amplitude = 0
