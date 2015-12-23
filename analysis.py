@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import peakutils
 import findpeaks as fp
 
+def fitness(ref, pred):
+    return np.sum(np.power((ref-pred), 2)) / len(ref)
 
 def rms(singals):
     rmss = []
