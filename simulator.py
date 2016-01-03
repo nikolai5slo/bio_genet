@@ -3,14 +3,14 @@ from scipy import integrate
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import math
 
 from contextlib import redirect_stdout
 
 from perturbate import *
 from population import *
-
+from analysis import *
 from config import *
-
 
 ''' Universal model generator '''
 def generate_model(model):
@@ -53,8 +53,7 @@ def generate_model(model):
 
 def simulate(sub):
     # Generate timestamps
-    t = np.arange(0, 100, dt)
-
+    t = np.arange(0, T_MAX, dt)
 
     # Dp ODE integration
     #tim = time.clock()
@@ -66,7 +65,6 @@ def simulate(sub):
     r = integrate.odeint(generate_model(sub), np.random.rand(sub['proteins']), t)
     #print(time.clock() - tim)
 
-
     #print(r)
 
 #    plt.plot(t, r)
@@ -76,17 +74,30 @@ def simulate(sub):
 
     return r
 
-
 #sub = initiate_subject()
+input_protein = np.array([IN_AMPL * math.sin(2 * math.pi * IN_FREQ * t) for t in np.arange(0, T_MAX, dt)])
+plt.plot(input_protein)
+plt.xlabel('Time')
+plt.ylabel('Protein concetration')
+plt.show()
+
 pop = generate_population(100)
 for i in range(100):
 
-    print("Generation:" + str(i))
+    print("Generation: " + str(i + 1))
 
     res = [simulate(sub) for sub in pop]
 
-    perturbate(pop)
+    # by default first protein of a subject is considered as output
+    evals = [(i, fitness(input_protein, res[i][:,0])) for i in range(len(res))]
+    evals.sort(key=lambda t: t[1])
+    print("Best score: %.4f" % (evals[0][1]))
 
-#print(generate_population())
+    #plt.plot(res[evals[0][0]][:,0])
+    #plt.xlabel('Time')
+    #plt.ylabel('Protein concetration')
+    #plt.show()
+
+    pop = perturbate(pop, evals)
 
 exit(0)

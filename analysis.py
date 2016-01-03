@@ -104,16 +104,16 @@ fr = np.linspace(0,100/2,N/2)
 # acc = lambda t: 10*scipy.sin(2*pi*2.0*t)
 # signal = acc(t)
 # sigFFT(signal)
-
-dt = 0.1
-t = np.arange(0, 100, dt)
-x = np.sin(2 * 3.14 * 300 * t)
-a=measureOsc(x, t, 0)
-print(a)
-centers = (30.5, 72.3)
-x = np.linspace(0, 120, 121)
-y = (peakutils.gaussian(x, 5, centers[0], 3) +
-    peakutils.gaussian(x, 7, centers[1], 10) +
-    np.random.rand(x.size))
+def execute():
+    dt = 0.1
+    t = np.arange(0, 100, dt)
+    x = np.sin(2 * 3.14 * 300 * t)
+    a=measureOsc(x, t, 0)
+    print(a)
+    centers = (30.5, 72.3)
+    x = np.linspace(0, 120, 121)
+    y = (peakutils.gaussian(x, 5, centers[0], 3) +
+        peakutils.gaussian(x, 7, centers[1], 10) +
+        np.random.rand(x.size))
 
 

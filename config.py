@@ -8,6 +8,7 @@ ALPHA_MAX = 1
 
 DEGRADATION_WEIGHTS = np.array([0.6,0.3,0.1])
 
+PERTURBATION_POPULATION_PERCENTAGE = 0.5
 PERTURBAIION_PROBABILITY = 0.1
 PERTURBATION_WEIGHT_DEGRADATION = np.array([0.6, 0.2, 0.2])
 PERTURBATION_WEIGHT_TYPE = np.array([0.6, 0.2, 0.2])
@@ -15,3 +16,7 @@ PERTURBATION_WEIGHT_TYPE = np.array([0.6, 0.2, 0.2])
 POPULATION_SIZE = 100
 T_MAX = 20
 dt = 0.01
+
+### Insert amplitude and frequency you want here ###
+IN_FREQ = 0.2
+IN_AMPL = 2

@@ -22,6 +22,25 @@ def initiate_subject(num_proteins=None):
         'mod': np.random.randint(0, num_proteins, size=num_proteins)
     }
 
+def copy_subject(sub):
+    newSub = {
+        'proteins': sub['proteins'],
+        'alphas': np.copy(sub['alphas']),
+        'M': np.copy(sub['M']),
+        'type': np.copy(sub['type']),
+
+        # Degradation
+        'deg_type': np.copy(sub['deg_type']),
+        'deltas': np.copy(sub['deltas']),
+        'Km': np.copy(sub['Km']),
+
+        # Modification
+        'betas': np.copy(sub['betas']),
+        'mod': np.copy(sub['mod'])
+    }
+
+    return newSub
+
 def generate_population(size, num_proteins=None):
     return [initiate_subject(num_proteins) for _ in range(size)]
 
