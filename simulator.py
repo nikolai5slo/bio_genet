@@ -24,7 +24,7 @@ def generate_model(model):
     ad_mat = -np.repeat([model['deltas']], model['proteins'], axis=0).T
     np.fill_diagonal(ad_mat, 0)
 
-    def repressilator_model(p, t):
+    def osc_model(p, t):
         # Genska represija
         dg = model['alphas'] * np.prod(np.where(model['M'] != 0, (0 <= np.where(model['M'] > 0, p - model['M'], -model['M'] - p )).astype(int), 1), axis=1)
 
@@ -47,7 +47,7 @@ def generate_model(model):
         dp = np.where(model['deg_type']==0, dl, np.where(model['deg_type']==1, da, de)) # Filtered degradation
 
         return dp
-    return repressilator_model
+    return osc_model
 
 
 
