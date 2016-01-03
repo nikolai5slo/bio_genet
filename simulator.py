@@ -75,14 +75,14 @@ def simulate(sub):
     return r
 
 #sub = initiate_subject()
-input_protein = np.array([IN_AMPL * math.sin(2 * math.pi * IN_FREQ * t) for t in np.arange(0, T_MAX, dt)])
+input_protein = np.array([IN_AMPL * math.sin(2 * math.pi * IN_FREQ * t) + IN_AMPL for t in np.arange(0, T_MAX, dt)])
 plt.plot(input_protein)
 plt.xlabel('Time')
 plt.ylabel('Protein concetration')
 plt.show()
 
 pop = generate_population(100)
-for i in range(100):
+for i in range(1000):
 
     print("Generation: " + str(i + 1))
 
