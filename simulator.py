@@ -7,7 +7,7 @@ import time
 import math
 import redirect
 
-from contextlib import redirect_stdout
+#from contextlib import redirect_stdout
 
 from perturbate import *
 from population import *

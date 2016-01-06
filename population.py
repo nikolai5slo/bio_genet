@@ -9,7 +9,8 @@ def initiate_subject(num_proteins=None):
     return {
         'proteins': num_proteins,
         'alphas': np.random.random_sample(size=num_proteins) * ALPHA_MAX,
-        'M': np.random.randint(-1, 2, size=(num_proteins, num_proteins)),
+        #'M': np.random.randint(-1, 2, size=(num_proteins, num_proteins)),
+        'M': generate_repres_topology(num_proteins),
         'type': np.random.randint(0, 3, size=num_proteins),# 0 - gensko izrazanje, 1 - linearna modifikacija, 2 - encimska modifikacija
 
         # Degradation
@@ -44,3 +45,12 @@ def copy_subject(sub):
 def generate_population(size, num_proteins=None):
     return [initiate_subject(num_proteins) for _ in range(size)]
 
+def generate_repres_topology(num_prot):
+    topology = np.zeros((num_prot,num_prot))
+    idx = np.random.randint(0, num_prot);
+    for i in range(topology.shape[0]):
+        topology[idx,i] = -1
+        idx+=1
+        if idx >= num_prot:
+            idx=0
+    return topology
