@@ -18,5 +18,5 @@ T_MAX = 5
 dt = 0.01
 
 ### Insert amplitude and frequency you want here ###
-IN_FREQ = 1
+IN_FREQ = 0.5
 IN_AMPL = 2
