@@ -1,9 +1,11 @@
-#!/bin/python
+#!/bin/python -W ignore
 from scipy import integrate
+
 import numpy as np
 import matplotlib.pyplot as plt
 import time
 import math
+import redirect
 
 from contextlib import redirect_stdout
 
@@ -62,7 +64,7 @@ def simulate(sub):
 
     #r, info = integrate.odeint(generate_model(sub), np.random.randint(0, 10, size=sub['proteins']), t, args=(), full_output=False, printmessg=False)
     #r = integrate.odeint(generate_model(sub), np.random.randint(0, 10, size=sub['proteins']), t, args=(), full_output=False, printmessg=False)
-    r = integrate.odeint(generate_model(sub), np.random.rand(sub['proteins']), t)
+    r = integrate.odeint(generate_model(sub), np.ones(sub['proteins']), t)
     #print(time.clock() - tim)
 
     #print(r)
@@ -86,7 +88,8 @@ for i in range(1000):
 
     print("Generation: " + str(i + 1))
 
-    res = [simulate(sub) for sub in pop]
+    with redirect.stdout_redirected():
+        res = [simulate(sub) for sub in pop]
 
     # by default first protein of a subject is considered as output
     evals = [(i, fitness(input_protein, res[i][:,0])) for i in range(len(res))]
