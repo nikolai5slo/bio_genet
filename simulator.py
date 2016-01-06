@@ -1,9 +1,11 @@
-#!/bin/python
+#!/bin/python -W ignore
 from scipy import integrate
+
 import numpy as np
 import matplotlib.pyplot as plt
 import time
 import math
+import redirect
 
 from contextlib import redirect_stdout
 
@@ -83,7 +85,8 @@ plt.show()
 
 pop = generate_population(100)
 for i in range(1000):
-    res = [simulate(sub) for sub in pop]
+    with redirect.stdout_redirected():
+        res = [simulate(sub) for sub in pop]
 
     #print(len(res), res[0][:,0].shape)
     # by default first protein of a subject is considered as output
