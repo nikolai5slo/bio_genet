@@ -85,12 +85,11 @@ plt.show()
 
 pop = generate_population(100)
 for i in range(1000):
-    with redirect.stdout_redirected():
-        res = [simulate(sub) for sub in pop]
+    #with redirect.stdout_redirected():
+    res = [simulate(sub) for sub in pop]
 
     #print(len(res), res[0][:,0].shape)
     # by default first protein of a subject is considered as output
-    print(len(res))
     evals = [(j, fitness(input_protein, res[j][:,0])) for j in range(len(res))]
     evals.sort(key=lambda t: t[1])
     print("Generation #%d - best score: %4d %.4f" % (i+1, evals[0][0], evals[0][1]))
