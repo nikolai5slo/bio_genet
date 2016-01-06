@@ -62,7 +62,7 @@ def simulate(sub):
 
     #r, info = integrate.odeint(generate_model(sub), np.random.randint(0, 10, size=sub['proteins']), t, args=(), full_output=False, printmessg=False)
     #r = integrate.odeint(generate_model(sub), np.random.randint(0, 10, size=sub['proteins']), t, args=(), full_output=False, printmessg=False)
-    r = integrate.odeint(generate_model(sub), np.random.rand(sub['proteins']), t)
+    r = integrate.odeint(generate_model(sub), np.ones(sub['proteins']), t)
     #print(time.clock() - tim)
 
     #print(r)
@@ -83,20 +83,20 @@ plt.show()
 
 pop = generate_population(100)
 for i in range(1000):
-
-    print("Generation: " + str(i + 1))
-
     res = [simulate(sub) for sub in pop]
 
+    #print(len(res), res[0][:,0].shape)
     # by default first protein of a subject is considered as output
-    evals = [(i, fitness(input_protein, res[i][:,0])) for i in range(len(res))]
+    print(len(res))
+    evals = [(j, fitness(input_protein, res[j][:,0])) for j in range(len(res))]
     evals.sort(key=lambda t: t[1])
-    print("Best score: %.4f" % (evals[0][1]))
+    print("Generation #%d - best score: %4d %.4f" % (i+1, evals[0][0], evals[0][1]))
 
-    #plt.plot(res[evals[0][0]][:,0])
-    #plt.xlabel('Time')
-    #plt.ylabel('Protein concetration')
-    #plt.show()
+    if i % 50 == 0 and i != 0:
+        plt.plot(res[evals[0][0]][:,0])
+        plt.xlabel('Time')
+        plt.ylabel('Protein concetration')
+        plt.show()
 
     pop = perturbate(pop, evals)
 
