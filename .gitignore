@@ -1,2 +1,4 @@
 ## Directory-based project format:
 .idea/
+results
+__pycache__

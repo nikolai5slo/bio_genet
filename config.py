@@ -3,7 +3,10 @@ import numpy as np
 ### CONFIG FILE ###
 PROTEIN_NUM_MAX = 3
 KD_MAX = 5
-ALPHA_MAX = 1
+KM_MAX = 5
+ALPHA_MAX = 3
+BETA_MAX = 3
+DELTA_MAX = 3
 
 DEGRADATION_WEIGHTS = np.array([0.6,0.3,0.1])
 
@@ -18,5 +21,5 @@ T_MAX = 5
 dt = 0.01
 
 ### Insert amplitude and frequency you want here ###
-IN_FREQ = 1
+IN_FREQ = 0.75
 IN_AMPL = 2

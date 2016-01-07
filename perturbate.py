@@ -5,23 +5,23 @@ from config import *
 from population import *
 
 def perturbate(population, evals):
-    start_idx = int(len(evals) * PERTURBATION_POPULATION_PERCENTAGE)
     pop_len = len(population)
+    best_sub_num = int(pop_len * PERTURBATION_POPULATION_PERCENTAGE)
 
     #select best sujects
-    newPop = [population[evals[idx][0]] for idx in range(0, start_idx)]
+    newPop = [population[evals[i][0]] for i in range(0, best_sub_num)]
 
     #add object to be perturbated
     pop_idx = 0
-    for idx in range(start_idx, pop_len):
+    for i in range(best_sub_num, pop_len):
         newPop.append(copy_subject(population[evals[pop_idx][0]]))
         pop_idx += 1
-        if pop_idx >= start_idx:
+        if pop_idx >= best_sub_num:
             pop_idx = 0
 
     # make perturbations
-    for idx in range(start_idx, len(evals)):
-        subject = newPop[idx]
+    for i in range(best_sub_num, pop_len):
+        subject = newPop[i]
 
         permutation_type = np.random.choice(6, p=PERTURBATION_PERMUTATION_WEIGHTS)
 
@@ -29,15 +29,19 @@ def perturbate(population, evals):
             # spreminjanje kineticnih parametrov
             a_map = np.random.choice(2, subject['proteins'], p=[0.9, 0.1])
             subject['alphas'] = np.where(a_map > 0, subject['alphas'] * np.random.rand() * 2, subject['alphas'])
+            subject['alphas'] = np.where(subject['alphas'] > ALPHA_MAX, ALPHA_MAX * np.random.rand(), subject['alphas'])
 
             b_map = np.random.choice(2, subject['proteins'], p=[0.9, 0.1])
             subject['betas'] = np.where(b_map > 0, subject['betas'] * np.random.rand() * 2, subject['betas'])
+            subject['betas'] = np.where(subject['betas'] > BETA_MAX, BETA_MAX * np.random.rand(), subject['betas'])
 
             d_map = np.random.choice(2, subject['proteins'], p=[0.9, 0.1])
             subject['deltas'] = np.where(d_map > 0, subject['deltas'] * np.random.rand() * 2, subject['deltas'])
+            subject['deltas'] = np.where(subject['deltas'] > DELTA_MAX, DELTA_MAX * np.random.rand(), subject['deltas'])
 
             km_map = np.random.choice(2, subject['proteins'], p=[0.9, 0.1])
             subject['Km'] = np.where(km_map > 0, subject['Km'] * np.random.rand() * 2, subject['Km'])
+            subject['Km'] = np.where(subject['Km'] > KM_MAX, KM_MAX * np.random.rand(), subject['Km'])
             ####################################
 
         elif permutation_type == 1 and subject['proteins'] < PROTEIN_NUM_MAX:

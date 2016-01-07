@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 import time
 import math
 import redirect
+import os
+from time import gmtime, strftime
+import sys
 
 from contextlib import redirect_stdout
 
@@ -13,6 +16,10 @@ from perturbate import *
 from population import *
 from analysis import *
 from config import *
+
+directory = "results/" + strftime("%Y-%m-%d-%H-%M-%S", gmtime())
+if not os.path.exists(directory):
+    os.makedirs(directory)
 
 ''' Universal model generator '''
 def generate_model(model):
@@ -51,8 +58,6 @@ def generate_model(model):
         return dp
     return osc_model
 
-
-
 def simulate(sub):
     # Generate timestamps
     t = np.arange(0, T_MAX, dt)
@@ -81,24 +86,27 @@ input_protein = np.array([IN_AMPL * math.sin(2 * math.pi * IN_FREQ * t) + IN_AMP
 plt.plot(input_protein)
 plt.xlabel('Time')
 plt.ylabel('Protein concetration')
-plt.show()
+plt.savefig(directory + "/ref.png")
+plt.close()
 
-pop = generate_population(100)
+best_score = sys.maxsize
+pop = generate_population(POPULATION_SIZE)
 for i in range(1000):
     #with redirect.stdout_redirected():
     res = [simulate(sub) for sub in pop]
 
-    #print(len(res), res[0][:,0].shape)
     # by default first protein of a subject is considered as output
     evals = [(j, fitness(input_protein, res[j][:,0])) for j in range(len(res))]
     evals.sort(key=lambda t: t[1])
     print("Generation #%d - best score: %4d %.4f" % (i+1, evals[0][0], evals[0][1]))
 
-    if i % 50 == 0 and i != 0:
+    if evals[0][1] < best_score:
+        best_score = evals[0][1]
         plt.plot(res[evals[0][0]][:,0])
         plt.xlabel('Time')
         plt.ylabel('Protein concetration')
-        plt.show()
+        plt.savefig(directory + "/gen" + str(i+1) + "_sco" + str(best_score) + ".png")
+        plt.close()
 
     pop = perturbate(pop, evals)
 
