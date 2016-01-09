@@ -9,6 +9,7 @@ import redirect
 import os
 from time import gmtime, strftime
 import sys
+import shutil
 
 from contextlib import redirect_stdout
 
@@ -17,9 +18,12 @@ from population import *
 from analysis import *
 from config import *
 
-directory = "results/" + strftime("%Y-%m-%d-%H-%M-%S", gmtime())
-if not os.path.exists(directory):
-    os.makedirs(directory)
+if OUTPUT:
+    directory = "results/" + strftime("%Y-%m-%d-%H-%M-%S", gmtime())
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    shutil.copyfile("./config.py", directory + "/config.py")
 
 ''' Universal model generator '''
 def generate_model(model):
@@ -34,8 +38,7 @@ def generate_model(model):
     np.fill_diagonal(ad_mat, 0)
 
     def osc_model(p, t):
-        # Genska represija
-        dg = model['alphas'] * np.prod(np.where(model['M'] != 0, (0 <= np.where(model['M'] > 0, p - model['M'], -model['M'] - p )).astype(int), 1), axis=1)
+        dg = model['alphas'] * np.prod(np.where(model['M'] != 0, (0 <= np.where(model['M'] > 0, p - (model['M'] * model['Kd']), -(model['M'] * model['Kd']) - p )).astype(int), 1), axis=1)
 
         # Modifikacija
         lm = np.dot(m_mat, p) # Linearna deg
@@ -69,7 +72,7 @@ def simulate(sub):
 
     #r, info = integrate.odeint(generate_model(sub), np.random.randint(0, 10, size=sub['proteins']), t, args=(), full_output=False, printmessg=False)
     #r = integrate.odeint(generate_model(sub), np.random.randint(0, 10, size=sub['proteins']), t, args=(), full_output=False, printmessg=False)
-    r = integrate.odeint(generate_model(sub), np.ones(sub['proteins']), t)
+    r = integrate.odeint(generate_model(sub), sub['init'], t)
     #print(time.clock() - tim)
 
     #print(r)
@@ -83,30 +86,50 @@ def simulate(sub):
 
 #sub = initiate_subject()
 input_protein = np.array([IN_AMPL * math.sin(2 * math.pi * IN_FREQ * t) + IN_AMPL for t in np.arange(0, T_MAX, dt)])
-plt.plot(input_protein)
-plt.xlabel('Time')
-plt.ylabel('Protein concetration')
-plt.savefig(directory + "/ref.png")
-plt.close()
+
+if OUTPUT:
+    plt.plot(input_protein)
+    plt.xlabel('Time')
+    plt.ylabel('Protein concetration')
+    plt.savefig(directory + "/ref.png")
+    plt.close()
 
 best_score = sys.maxsize
 pop = generate_population(POPULATION_SIZE)
 for i in range(1000):
+    #print(pop[0]['M'])
+    #print(pop[1]['M'])
+    #print(pop[2]['M'])
+    #print(pop[3]['M'])
+
     #with redirect.stdout_redirected():
     res = [simulate(sub) for sub in pop]
 
     # by default first protein of a subject is considered as output
-    evals = [(j, fitness(input_protein, res[j][:,0])) for j in range(len(res))]
+    #evals = [(j, fitness(input_protein, res[j][:,0])) for j in range(len(res))]
+    evals = []
+    for j in range(len(res)):
+        best_prot_idx = 0
+        best_prot_score = fitness(input_protein, res[j][:,0])
+        for k in range(pop[j]['proteins']):
+            pred = fitness(input_protein, res[j][:,k])
+            if pred < best_prot_score:
+                best_prot_idx = k
+                best_prot_score = pred
+        evals.append((j, best_prot_score, best_prot_idx))
+
     evals.sort(key=lambda t: t[1])
-    print("Generation #%d - best score: %4d %.4f" % (i+1, evals[0][0], evals[0][1]))
+    print("Generation #%d - best score: %4d %1d %.4f" % (i+1, evals[0][0], evals[0][2], evals[0][1]))
 
     if evals[0][1] < best_score:
         best_score = evals[0][1]
-        plt.plot(res[evals[0][0]][:,0])
-        plt.xlabel('Time')
-        plt.ylabel('Protein concetration')
-        plt.savefig(directory + "/gen" + str(i+1) + "_sco" + str(best_score) + ".png")
-        plt.close()
+
+        if OUTPUT:
+            plt.plot(res[evals[0][0]][:,0])
+            plt.xlabel('Time')
+            plt.ylabel('Protein concetration')
+            plt.savefig(directory + "/gen" + str(i+1) + "_sco" + str(best_score) + ".png")
+            plt.close()
 
     pop = perturbate(pop, evals)
 

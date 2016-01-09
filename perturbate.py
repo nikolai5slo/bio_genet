@@ -42,6 +42,10 @@ def perturbate(population, evals):
             km_map = np.random.choice(2, subject['proteins'], p=[0.9, 0.1])
             subject['Km'] = np.where(km_map > 0, subject['Km'] * np.random.rand() * 2, subject['Km'])
             subject['Km'] = np.where(subject['Km'] > KM_MAX, KM_MAX * np.random.rand(), subject['Km'])
+
+            kd_map = np.random.choice(2, (subject['proteins'], subject['proteins']), p=[0.6, 0.4])
+            subject['Kd'] = np.where(kd_map > 0, subject['Kd'] * np.random.rand() * 2, subject['Kd'])
+            subject['Kd'] = np.where(subject['Kd'] > KD_MAX, np.random.rand() * KD_MAX, subject['Kd'])
             ####################################
 
         elif permutation_type == 1 and subject['proteins'] < PROTEIN_NUM_MAX:
@@ -51,6 +55,9 @@ def perturbate(population, evals):
             subject['M'] = np.vstack((subject['M'], np.random.randint(-1, 2, size=subject['proteins'] - 1)))
             subject['M'] = np.hstack((subject['M'], np.random.randint(-1, 2, size=(subject['proteins'], 1))))
 
+            subject['Kd'] = np.vstack((subject['Kd'], np.random.random_sample(size=subject['proteins'] - 1) * KD_MAX))
+            subject['Kd'] = np.hstack((subject['Kd'], np.random.random_sample(size=(subject['proteins'], 1)) * KD_MAX))
+
             subject['alphas'] = np.append(subject['alphas'], 1)
             subject['betas'] = np.append(subject['betas'], 1)
             subject['deltas'] = np.append(subject['deltas'], 1)
@@ -58,6 +65,7 @@ def perturbate(population, evals):
             subject['deg_type'] = np.append(subject['deg_type'], np.random.randint(0, 3))
             subject['Km'] = np.append(subject['Km'], 1)
             subject['mod'] = np.append(subject['mod'], np.random.randint(0, subject['proteins'] - 1))
+            subject['init'] = np.append(subject['init'], np.random.rand() * KD_MAX)
             ####################################
 
         elif permutation_type == 2:
@@ -92,11 +100,13 @@ def perturbate(population, evals):
             subject['type'] = np.delete(subject['type'], idx)
             subject['deg_type'] = np.delete(subject['deg_type'], idx)
             subject['Km'] = np.delete(subject['Km'], idx)
+            subject['init'] = np.delete(subject['init'], idx)
 
             subject['mod'] = np.delete(subject['mod'], idx)
             subject['mod'] = np.where(subject['mod'] >= idx, subject['mod']-1, subject['mod'])
 
             subject['M'] = np.delete(np.delete(subject['M'], idx, axis=0), idx, axis=1)
+            subject['Kd'] = np.delete(np.delete(subject['Kd'], idx, axis=0), idx, axis=1)
             ####################################
 
     return newPop
