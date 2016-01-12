@@ -96,7 +96,6 @@ if OUTPUT:
 
 best_score = sys.maxsize
 pop = generate_population(POPULATION_SIZE)
-best_sub = dict()
 for i in range(1000):
 
     #with redirect.stdout_redirected():
@@ -136,8 +135,6 @@ for i in range(1000):
             plt.ylabel('Protein concetration')
             plt.savefig(directory + "/gen" + str(i+1) + "_sco" + str(best_score) + ".png")
             plt.close()
-
-    best_sub = pop[evals[0][0]]
 
     pop = perturbate(pop, evals)
 
