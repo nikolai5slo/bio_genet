@@ -2,7 +2,7 @@ import numpy as np
 
 ### CONFIG FILE ###
 PROTEIN_NUM_MAX = 3
-KD_MAX = 5
+KD_MAX = 100
 ALPHA_MAX = 1
 
 DEGRADATION_WEIGHTS = np.array([0.6,0.3,0.1])
@@ -14,7 +14,7 @@ PERTURBATION_WEIGHT_DEGRADATION = np.array([0.6, 0.2, 0.2])
 PERTURBATION_WEIGHT_TYPE = np.array([0.6, 0.2, 0.2])
 
 POPULATION_SIZE = 100
-T_MAX = 5
+T_MAX = 2
 dt = 0.01
 
 ### Insert amplitude and frequency you want here ###

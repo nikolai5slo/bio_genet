@@ -40,7 +40,7 @@ def perturbate(population, evals):
             subject['Km'] = np.where(km_map > 0, subject['Km'] * np.random.rand() * 2, subject['Km'])
             ####################################
 
-        elif permutation_type == 1 and subject['proteins'] < PROTEIN_NUM_MAX:
+        """elif permutation_type == 1 and subject['proteins'] < PROTEIN_NUM_MAX:
             # dodajanje novega proteina
             subject['proteins'] += 1
 
@@ -93,7 +93,7 @@ def perturbate(population, evals):
             subject['mod'] = np.where(subject['mod'] >= idx, subject['mod']-1, subject['mod'])
 
             subject['M'] = np.delete(np.delete(subject['M'], idx, axis=0), idx, axis=1)
-            ####################################
+            ####################################"""
 
     return newPop
 

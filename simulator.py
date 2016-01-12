@@ -7,7 +7,7 @@ import time
 import math
 import redirect
 
-#from contextlib import redirect_stdout
+import contextlib2
 
 from perturbate import *
 from population import *
@@ -28,7 +28,7 @@ def generate_model(model):
 
     def osc_model(p, t):
         # Genska represija
-        dg = model['alphas'] * np.prod(np.where(model['M'] != 0, (0 <= np.where(model['M'] > 0, p - model['M'], -model['M'] - p )).astype(int), 1), axis=1)
+        dg = model['alphas'] * np.prod(np.where(model['M'] != 0, (0 <= np.where(model['M'] > 0, p - model['M'], -model['M'] - p )).astype(int), 0), axis=1)
 
         # Modifikacija
         lm = np.dot(m_mat, p) # Linearna deg

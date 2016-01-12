@@ -49,7 +49,7 @@ def generate_repres_topology(num_prot):
     topology = np.zeros((num_prot,num_prot))
     idx = np.random.randint(0, num_prot);
     for i in range(topology.shape[0]):
-        topology[idx,i] = -1
+        topology[idx,i] = -np.random.randint(0, 100)
         idx+=1
         if idx >= num_prot:
             idx=0
