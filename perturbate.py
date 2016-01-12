@@ -4,6 +4,15 @@ import copy
 from config import *
 from population import *
 
+"""
+    Izvajanje perturbacij
+        :param sub
+            Subjekt
+
+        :return
+            Koncentracije proteinov
+
+"""
 def perturbate(population, evals):
     pop_len = len(population)
     best_sub_num = int(pop_len * PERTURBATION_POPULATION_PERCENTAGE)
