@@ -96,14 +96,17 @@ if OUTPUT:
 
 best_score = sys.maxsize
 pop = generate_population(POPULATION_SIZE)
+best_sub = dict()
 for i in range(1000):
-    #print(pop[0]['M'])
-    #print(pop[1]['M'])
-    #print(pop[2]['M'])
-    #print(pop[3]['M'])
 
     #with redirect.stdout_redirected():
     res = [simulate(sub) for sub in pop]
+
+    if i == 0:
+        plt.plot(res[0])
+        plt.xlabel('Time')
+        plt.ylabel('Protein concetration')
+        plt.show()
 
     # by default first protein of a subject is considered as output
     #evals = [(j, fitness(input_protein, res[j][:,0])) for j in range(len(res))]
@@ -121,15 +124,20 @@ for i in range(1000):
     evals.sort(key=lambda t: t[1])
     print("Generation #%d - best score: %4d %1d %.4f" % (i+1, evals[0][0], evals[0][2], evals[0][1]))
 
+    #if best_sub == pop[evals[0][0]]:
+    #    print("\tSame subject")
+
     if evals[0][1] < best_score:
         best_score = evals[0][1]
 
         if OUTPUT:
-            plt.plot(res[evals[0][0]][:,0])
+            plt.plot(res[evals[0][0]][:,evals[0][2]])
             plt.xlabel('Time')
             plt.ylabel('Protein concetration')
             plt.savefig(directory + "/gen" + str(i+1) + "_sco" + str(best_score) + ".png")
             plt.close()
+
+    best_sub = pop[evals[0][0]]
 
     pop = perturbate(pop, evals)
 

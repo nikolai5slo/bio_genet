@@ -13,7 +13,8 @@ def initiate_subject(num_proteins=None):
         'alphas': np.random.random_sample(size=num_proteins) * ALPHA_MAX,
         'M': np.random.randint(-1, 2, size=(num_proteins, num_proteins)),
         'type': np.random.randint(0, 3, size=num_proteins),# 0 - gensko izrazanje, 1 - linearna modifikacija, 2 - encimska modifikacija
-        'Kd': np.random.random_sample(size=(num_proteins, num_proteins)) * KD_MAX,
+        #'Kd': np.random.random_sample(size=(num_proteins, num_proteins)) * KD_MAX,
+        'Kd': np.random.random_sample(num_proteins) * KD_MAX,
 
         # Degradation
         'deg_type': np.random.randint(0, 3, size=num_proteins), # 0 - linearna deg., 1 - aktivna deg., 2 - encimska deg.
@@ -34,13 +35,13 @@ def initiate_subject(num_proteins=None):
             if idx >= sub['proteins']:
                 idx = 0
         sub['M'] = gmap
-        sub['Kd'] = np.array([[KD_MAX for _ in range(num_proteins)] for _ in range(num_proteins)])
-        sub['alphas'] = np.ones(num_proteins)
+        #sub['Kd'] = np.array([[KD_MAX * 0.5 for _ in range(num_proteins)] for _ in range(num_proteins)])
+        sub['alphas'] = np.array([ALPHA_MAX for _ in range(num_proteins)])
+        sub['deltas'] = np.array([DELTA_MAX for _ in range(num_proteins)])
+        sub['Kd'] = np.array([KD_MAX for _ in range(num_proteins)])
         sub['type'] = np.zeros(num_proteins)
-        sub['alphas'] = np.zeros(num_proteins)
         sub['deg_type'] = np.zeros(num_proteins)
-        sub['deltas'] = np.zeros(num_proteins)
-        #sub['betas'] = np.zeros(num_proteins)
+        sub['betas'] = np.zeros(num_proteins)
 
     return sub
 
