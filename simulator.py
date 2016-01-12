@@ -66,7 +66,7 @@ def generate_model(model):
         # Encimska degradacija
         de = -model['deltas'] * (dp / (model['Km'] + dp))
 
-        # Združitev vseh operacij glede na maske
+        # Zdruzitev vseh operacij glede na maske
         dp = np.where(model['deg_type']==0, dl, np.where(model['deg_type']==1, da, de))
 
         return dp
